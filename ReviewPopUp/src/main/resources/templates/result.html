@@ -6,8 +6,11 @@
 </head>
 <body>
 	<h1>Result</h1>
-    <p th:text="'id: ' + ${greeting.id}" />
-    <p th:text="'content: ' + ${greeting.content}" />
-    <a href="/greeting">Submit another message</a>
+    <p th:text="'ID: ' + ${feedback.id}" />
+    <p th:text="'Name: ' + ${feedback.name}" />
+    <p th:text="'Email: ' + ${feedback.email}" />
+    <p th:text="'Content: ' + ${feedback.content}" />
+    <p th:text="'Bug Report?: ' + ${feedback.isBugReport}" />
+    <a href="/review">Submit another message</a>
 </body>
 </html>
