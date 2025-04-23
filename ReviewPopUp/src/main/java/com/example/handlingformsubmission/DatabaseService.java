@@ -1,27 +1,69 @@
 package com.example.handlingformsubmission;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
 
 import org.junit.jupiter.api.Assertions;
-import org.springframework.http.HttpEntity;
+
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class DatabaseService {
-    public GeneralizedFeedbackData createGeneralized(Feedback feedback) {
+    private GeneralizedFeedbackData createGeneralized(Feedback feedback) {
         return new GeneralizedFeedbackData(null, feedback.getContent());
+    }
+
+    private InputUserData createUserData(Feedback feedback) {
+        InputUserData user = new InputUserData();
+        user.name = feedback.getName();
+        user.email = feedback.getEmail();
+
+        return user;
+    }
+
+    private FeedbackData sendSubmitReq(GeneralizedFeedbackData gfb, RestTemplate restTemplate) {
+        HttpEntity<GeneralizedFeedbackData> requestSubmit = new HttpEntity<>(gfb);
+
+        String submitUrl = "http://localhost:8081/submit";
+        ResponseEntity<FeedbackData> response = restTemplate
+                .exchange(submitUrl, HttpMethod.POST, requestSubmit, FeedbackData.class);
+
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode()); // Assertion will be removed later or moved to tests
+        return response.getBody();
+    }
+
+    private UserData createUserReq(InputUserData userData, RestTemplate restTemplate) {
+        HttpEntity<InputUserData> requestUser = new HttpEntity<>(userData);
+
+        String usersCreateUrl = "http://localhost:8081/users/create";
+        return restTemplate.postForObject(usersCreateUrl, requestUser, UserData.class);
     }
 
     public void sendFeedback(Feedback feedback) {
         GeneralizedFeedbackData generalizedFeedback = createGeneralized(feedback);
+        InputUserData userData = createUserData(feedback);
 
         RestTemplate restTemplate = new RestTemplate();
 
-        HttpEntity<GeneralizedFeedbackData> request = new HttpEntity<>(generalizedFeedback);
-        String submitUrl = "http://localhost:8081/submit";
-        GeneralizedFeedbackData gfb = restTemplate.postForObject(submitUrl, request, GeneralizedFeedbackData.class);
 
-        Assertions.assertNotNull(gfb);
-        Assertions.assertEquals(gfb.getContent(), feedback.getContent());
+        long feedbackID = sendSubmitReq(generalizedFeedback, restTemplate).getId();
+        feedback.setId(feedbackID); // this sets the ID for our internal Feedback Model for the message confirmation
+
+
+        if (userData.name.isEmpty() && userData.email.isEmpty()) return; // no user will be associated if no name or email is provided
+
+        long userID = createUserReq(userData, restTemplate).getId();
+
+        String usersAssociateUrl = "http://localhost:8081/users/associate?feedback_id=" + feedbackID + "&user_id=" + userID;
+        restTemplate.exchange(usersAssociateUrl, HttpMethod.PUT, null, Void.class);
     }
 }

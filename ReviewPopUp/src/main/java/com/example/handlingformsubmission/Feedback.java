@@ -8,8 +8,8 @@ public class Feedback {
     @Id
     private long id;
 
-	private String name; // Optional if doing bug report, or Provider does not display Name publicly for reviews
-	private String email; // optional
+	private String name = ""; // Optional if doing bug report, or Provider does not display Name publicly for reviews
+	private String email = ""; // optional
 	private String feedback;
 	private String content;
 	private boolean isBugReport;
@@ -25,7 +25,7 @@ public class Feedback {
 		this.content = content;
 	}
 
-//	public void setId(long id) { this.id = id; } // we will need to retrieve a generated ID from Database microservice
+	public void setId(long id) {this.id = id;} // we retrieve a generated ID from Database microservice
 	public long getId() {
 		return id;
 	}

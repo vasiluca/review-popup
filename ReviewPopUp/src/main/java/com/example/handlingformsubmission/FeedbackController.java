@@ -12,13 +12,13 @@ public class FeedbackController {
 	@Autowired DatabaseService dbs;
 
 	@GetMapping("/review")
-	public String greetingForm(Model model) {
+	public String reviewForm(Model model) {
 		model.addAttribute("feedback", new Feedback());
 		return "reviewpopup";
 	}
 
 	@PostMapping("/review")
-	public String greetingSubmit(@ModelAttribute Feedback feedback, Model model) {
+	public String reviewSubmit(@ModelAttribute Feedback feedback, Model model) {
 		dbs.sendFeedback(feedback);
 		model.addAttribute("feedback", feedback);
 		return "result";
