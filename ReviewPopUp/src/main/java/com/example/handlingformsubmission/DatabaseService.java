@@ -54,8 +54,12 @@ public class DatabaseService {
     }
 
     private void notifyReviewPopUpService(long feedbackID, RestTemplate restTemplate) {
-        String updateServiceUrl = "http://localhost:8084/notifyService/" + feedbackID; // this is the ReviewPopUp's Microservice URL
-        restTemplate.exchange(updateServiceUrl, HttpMethod.POST, null, Void.class);
+        try {
+            String updateServiceUrl = "http://localhost:8084/notifyService/" + feedbackID; // this is the ReviewPopUp's Microservice URL
+            restTemplate.exchange(updateServiceUrl, HttpMethod.POST, null, Void.class);
+        } catch (Exception e) {
+            System.out.println("Unable to Access ReviewPopUp's Microservice.");
+        }
     }
 
     public void sendFeedback(Feedback feedback) {

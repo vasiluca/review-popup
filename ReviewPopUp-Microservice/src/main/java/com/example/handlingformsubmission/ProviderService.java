@@ -10,7 +10,12 @@ public class ProviderService {
     public void notifyProvider(long feedbackID) {
         RestTemplate restTemplate = new RestTemplate();
 
-        String updatedIdUrl = "http://localhost:8082/updated/" + feedbackID; // Actual Provider Microservice Url
-        restTemplate.exchange(updatedIdUrl, HttpMethod.POST, null, Void.class);
+        try {
+            String updatedIdUrl = "http://localhost:8082/updated/" + feedbackID; // Actual Provider Microservice Url
+            restTemplate.exchange(updatedIdUrl, HttpMethod.POST, null, Void.class);
+        } catch (Exception e) {
+            System.out.println("\nUnable to access the /updated/ endpoint from the Provider Microservice on Port 8082");
+        }
+
     }
 }
