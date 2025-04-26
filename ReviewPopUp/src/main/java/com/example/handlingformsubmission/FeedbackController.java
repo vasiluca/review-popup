@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class FeedbackController {
@@ -15,6 +16,11 @@ public class FeedbackController {
 	public String reviewForm(Model model) {
 		model.addAttribute("feedback", new Feedback());
 		return "reviewpopup";
+	}
+
+	@GetMapping("/")
+	public ModelAndView formRedirect(Model model) {
+		return new ModelAndView("redirect:review");
 	}
 
 	@PostMapping("/review")

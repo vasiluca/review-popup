@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 public class DatabaseService {
     private GeneralizedFeedbackData createGeneralized(Feedback feedback) {
-        return new GeneralizedFeedbackData(null, feedback.getContent());
+        return new GeneralizedFeedbackData("", feedback.getContent());
     }
 
     private InputUserData createUserData(Feedback feedback) {
@@ -48,6 +48,11 @@ public class DatabaseService {
         return restTemplate.postForObject(usersCreateUrl, requestUser, UserData.class);
     }
 
+    private void notifyReviewPopUpService(long feedbackID, RestTemplate restTemplate) {
+        String updateServiceUrl = "http://localhost:8084/notifyService/" + feedbackID; // this is the ReviewPopUp's Microservice URL
+        restTemplate.exchange(updateServiceUrl, HttpMethod.POST, null, Void.class);
+    }
+
     public void sendFeedback(Feedback feedback) {
         GeneralizedFeedbackData generalizedFeedback = createGeneralized(feedback);
         InputUserData userData = createUserData(feedback);
@@ -59,11 +64,13 @@ public class DatabaseService {
         feedback.setId(feedbackID); // this sets the ID for our internal Feedback Model for the message confirmation
 
 
-        if (userData.name.isEmpty() && userData.email.isEmpty()) return; // no user will be associated if no name or email is provided
+        if (!userData.name.isEmpty() || !userData.email.isEmpty()) { // no user will be associated if no name and no email is provided
+            long userID = createUserReq(userData, restTemplate).getId();
 
-        long userID = createUserReq(userData, restTemplate).getId();
+            String usersAssociateUrl = "http://localhost:8081/users/associate?feedback_id=" + feedbackID + "&user_id=" + userID;
+            restTemplate.exchange(usersAssociateUrl, HttpMethod.PUT, null, Void.class);
+        }
 
-        String usersAssociateUrl = "http://localhost:8081/users/associate?feedback_id=" + feedbackID + "&user_id=" + userID;
-        restTemplate.exchange(usersAssociateUrl, HttpMethod.PUT, null, Void.class);
+        notifyReviewPopUpService(feedbackID, restTemplate);
     }
 }
