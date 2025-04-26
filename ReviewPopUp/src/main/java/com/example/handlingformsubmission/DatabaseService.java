@@ -1,6 +1,4 @@
 package com.example.handlingformsubmission;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +10,22 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class DatabaseService {
     private GeneralizedFeedbackData createGeneralized(Feedback feedback) {
-        return new GeneralizedFeedbackData("", feedback.getContent());
-    }
+            GeneralizedFeedbackData gfb = new GeneralizedFeedbackData("", feedback.getContent());
+            // now we add metadata
+            Map<String, String> map = new HashMap<>();
+            map.put("DateTime", Instant.now().toString());
+            map.put("isBugReport", ""+feedback.getIsBugReport());
+            gfb.metaData = map;
+
+            return gfb;
+        }
 
     private InputUserData createUserData(Feedback feedback) {
         InputUserData user = new InputUserData();
