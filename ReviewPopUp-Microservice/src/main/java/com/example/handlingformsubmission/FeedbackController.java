@@ -10,11 +10,16 @@ import org.springframework.web.servlet.ModelAndView;
 public class FeedbackController {
 	@Autowired
 	ProviderService providerService;
+	@Autowired
+	ClientService clientService;
 
 	@PostMapping("/notifyService/{id}")
 	public void updated(@PathVariable long id) {
-		System.out.println("Received request for id = ");
 		providerService.notifyProvider(id);
 	}
 
+	@GetMapping("/getFeedback/{id}")
+	public FeedbackData getFeedback(@PathVariable long id) {
+		return clientService.getById(id);
+	}
 }
