@@ -28,7 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(FeedbackController.class)
+@WebMvcTest(FeedbackServiceController.class)
 @TestPropertySource(properties = "logging.level.org.springframework.web=DEBUG")
 public class DemoServiceTest {
 
